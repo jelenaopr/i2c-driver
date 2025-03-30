@@ -144,34 +144,32 @@ static void i2c_driver_print_string(const char *string)
 static void i2c_driver_display_init(void) {
     send_command_to_slave_device(DISPLAY_CMD_DISPLAY_OFF);
     send_command_to_slave_device(DISPLAY_CMD_DISPLAY_CLOCK_DIVIDE);
-    send_command_to_slave_device(0x80);
+    send_command_to_slave_device(DISPLAY_CMD_DFLT_CLK_OSCI_FREQ);
     send_command_to_slave_device(DISPLAY_CMD_MULTIPLEX_RATIO);
-    send_command_to_slave_device(0x3F);
-    send_command_to_slave_device(0xD3);
-    send_command_to_slave_device(0x00);
-    send_command_to_slave_device(0x40);
-    send_command_to_slave_device(0x40);
-    send_command_to_slave_device(0x8D);
-    send_command_to_slave_device(0x14);
-    send_command_to_slave_device(0x20);
-    send_command_to_slave_device(0x00);
-    send_command_to_slave_device(0xA1);
-    send_command_to_slave_device(0xC8);
-    send_command_to_slave_device(0xDA);
-    send_command_to_slave_device(0x12);
-    send_command_to_slave_device(0x81);
-    send_command_to_slave_device(0x80);
-    send_command_to_slave_device(0xD9);
-    send_command_to_slave_device(0xF1);
-    send_command_to_slave_device(0xDB);
-    send_command_to_slave_device(0x20);
-    send_command_to_slave_device(0xA4);
-    send_command_to_slave_device(0xA6);
-    send_command_to_slave_device(0x2E);
-    send_command_to_slave_device(0xAF);
+    send_command_to_slave_device(DISPLAY_CMD_DFLT_COM_LINES);
+    send_command_to_slave_device(DISPLAY_CMD_DISPLAY_OFFSET);
+    send_command_to_slave_device(DISPLAY_CMD_LOWER_COLUMN_START_ADDRESS);
+    send_command_to_slave_device(DISPLAY_CMD_DISPLAY_START_LINE);
+    send_command_to_slave_device(DISPLAY_CMD_CHARGE_PUMP_SETTING);
+    send_command_to_slave_device(DISPLAY_CMD_EN_CHARGE);
+    send_command_to_slave_device(DISPLAY_CMD_MEMORY_ADDRESSING_MODE);
+    send_command_to_slave_device(DISPLAY_CMD_LOWER_COLUMN_START_ADDRESS);
+    send_command_to_slave_device(DISPLAY_CMD_COLUMN_127_MAPPED_TO_SEG0);
+    send_command_to_slave_device(DISPLAY_CMD_SCAN_DIRECTION_COMN_1_START);
+    send_command_to_slave_device(DISPLAY_CMD_COM_PINS_CONF);
+    send_command_to_slave_device(DISPLAY_CMD_ALT_PIN_CONFIG);
+    send_command_to_slave_device(DISPLAY_CMD_CONTRAST_CONTROL);
+    send_command_to_slave_device(DISPLAY_CMD_DFLT_CLK_OSCI_FREQ);
+    send_command_to_slave_device(DISPLAY_CMD_PRE_CHARGE_PERIOD);
+    send_command_to_slave_device(DISPLAY_CMD_PHASE_1_PHASE_2);
+    send_command_to_slave_device(DISPLAY_CMD_COMH_DESLECT_LEVEL);
+    send_command_to_slave_device(DISPLAY_CMD_MEMORY_ADDRESSING_MODE);
+    send_command_to_slave_device(DISPLAY_CMD_ENTIRE_DISPLAY_OFF);
+    send_command_to_slave_device(DISPLAY_CMD_NORMAL_DISPLAY);
+    send_command_to_slave_device(DISPLAY_CMD_DEACTIVATE_SCROLL);
+    send_command_to_slave_device(DISPLAY_CMD_DISPLAY_ON);
 
     i2c_driver_clear_display();
-
 }
 
 static int i2c_driver_probe(struct i2c_client *client){ 

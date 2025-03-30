@@ -8,41 +8,46 @@
 #define IOCTL_CMD_WRITE 0x00
 #define IOCTL_CMD_CLEAR 0x01
 
-#define DISPLAY_CMD_LOWER_COLUMN_START_ADDRESS              0x00        /**< command lower column start address */
-#define DISPLAY_CMD_HIGHER_COLUMN_START_ADDRESS             0x10        /**< command higher column start address */
-#define DISPLAY_CMD_MEMORY_ADDRESSING_MODE                  0x20        /**< command memory addressing mode */
-#define DISPLAY_CMD_SET_COLUMN_ADDRESS                      0x21        /**< command set column address */
-#define DISPLAY_CMD_SET_PAGE_ADDRESS                        0x22        /**< command set page address */
-#define DISPLAY_CMD_SET_FADE_OUT_AND_BLINKING               0x23        /**< command set fade out and blinking */
-#define DISPLAY_CMD_RIGHT_HORIZONTAL_SCROLL                 0x26        /**< command right horizontal scroll */
-#define DISPLAY_CMD_LEFT_HORIZONTAL_SCROLL                  0x27        /**< command left horizontal scroll */
-#define DISPLAY_CMD_VERTICAL_RIGHT_HORIZONTAL_SCROLL        0x29        /**< command vertical right horizontal scroll */
-#define DISPLAY_CMD_VERTICAL_LEFT_HORIZONTAL_SCROLL         0x2A        /**< command vertical left horizontal scroll */
-#define DISPLAY_CMD_DEACTIVATE_SCROLL                       0x2E        /**< command deactivate scroll */
-#define DISPLAY_CMD_ACTIVATE_SCROLL                         0x2F        /**< command activate scroll */
-#define DISPLAY_CMD_DISPLAY_START_LINE                      0x40        /**< command display start line */
-#define DISPLAY_CMD_CONTRAST_CONTROL                        0x81        /**< command contrast control */
-#define DISPLAY_CMD_CHARGE_PUMP_SETTING                     0x8D        /**< command charge pump setting */
-#define DISPLAY_CMD_COLUMN_0_MAPPED_TO_SEG0                 0xA0        /**< command column 0 mapped to seg 0 */
-#define DISPLAY_CMD_COLUMN_127_MAPPED_TO_SEG0               0xA1        /**< command column 127 mapped to seg 0 */
-#define DISPLAY_CMD_VERTICAL_SCROLL_AREA                    0xA3        /**< command vertical scroll area */
-#define DISPLAY_CMD_ENTIRE_DISPLAY_OFF                      0xA4        /**< command entire display off */ 
-#define DISPLAY_CMD_ENTIRE_DISPLAY_ON                       0xA5        /**< command entire display on */ 
-#define DISPLAY_CMD_NORMAL_DISPLAY                          0xA6        /**< command normal display */ 
-#define DISPLAY_CMD_INVERSE_DISPLAY                         0xA7        /**< command inverse display */ 
-#define DISPLAY_CMD_MULTIPLEX_RATIO                         0xA8        /**< command multiplex ratio */ 
-#define DISPLAY_CMD_DISPLAY_OFF                             0xAE        /**< command display off */ 
-#define DISPLAY_CMD_DISPLAY_ON                              0xAF        /**< command display on */ 
-#define DISPLAY_CMD_PAGE_ADDR                               0xB0        /**< command page address */ 
-#define DISPLAY_CMD_SCAN_DIRECTION_COM0_START               0xC0        /**< command scan direction com 0 start */ 
-#define DISPLAY_CMD_SCAN_DIRECTION_COMN_1_START             0xC8        /**< command scan direction com n-1 start */ 
-#define DISPLAY_CMD_DISPLAY_OFFSET                          0xD3        /**< command display offset */ 
-#define DISPLAY_CMD_DISPLAY_CLOCK_DIVIDE                    0xD5        /**< command display clock divide */ 
-#define DISPLAY_CMD_SET_ZOOM_IN                             0xD6        /**< command set zoom in */ 
-#define DISPLAY_CMD_PRE_CHARGE_PERIOD                       0xD9        /**< command pre charge period */ 
-#define DISPLAY_CMD_COM_PINS_CONF                           0xDA        /**< command com pins conf */ 
-#define DISPLAY_CMD_COMH_DESLECT_LEVEL                      0xDB        /**< command comh deslect level */ 
-#define DISPLAY_CMD_NOP                                     0xE3        /**< command nop */
+#define DISPLAY_CMD_LOWER_COLUMN_START_ADDRESS              0x00       
+#define DISPLAY_CMD_HIGHER_COLUMN_START_ADDRESS             0x10        
+#define DISPLAY_CMD_MEMORY_ADDRESSING_MODE                  0x20        
+#define DISPLAY_CMD_SET_COLUMN_ADDRESS                      0x21        
+#define DISPLAY_CMD_SET_PAGE_ADDRESS                        0x22        
+#define DISPLAY_CMD_SET_FADE_OUT_AND_BLINKING               0x23        
+#define DISPLAY_CMD_RIGHT_HORIZONTAL_SCROLL                 0x26        
+#define DISPLAY_CMD_LEFT_HORIZONTAL_SCROLL                  0x27        
+#define DISPLAY_CMD_VERTICAL_RIGHT_HORIZONTAL_SCROLL        0x29        
+#define DISPLAY_CMD_VERTICAL_LEFT_HORIZONTAL_SCROLL         0x2A        
+#define DISPLAY_CMD_DEACTIVATE_SCROLL                       0x2E        
+#define DISPLAY_CMD_ACTIVATE_SCROLL                         0x2F        
+#define DISPLAY_CMD_DISPLAY_START_LINE                      0x40        
+#define DISPLAY_CMD_CONTRAST_CONTROL                        0x81        
+#define DISPLAY_CMD_CHARGE_PUMP_SETTING                     0x8D        
+#define DISPLAY_CMD_COLUMN_0_MAPPED_TO_SEG0                 0xA0        
+#define DISPLAY_CMD_COLUMN_127_MAPPED_TO_SEG0               0xA1        
+#define DISPLAY_CMD_VERTICAL_SCROLL_AREA                    0xA3        
+#define DISPLAY_CMD_ENTIRE_DISPLAY_OFF                      0xA4         
+#define DISPLAY_CMD_ENTIRE_DISPLAY_ON                       0xA5        
+#define DISPLAY_CMD_NORMAL_DISPLAY                          0xA6        
+#define DISPLAY_CMD_INVERSE_DISPLAY                         0xA7        
+#define DISPLAY_CMD_MULTIPLEX_RATIO                         0xA8        
+#define DISPLAY_CMD_DISPLAY_OFF                             0xAE         
+#define DISPLAY_CMD_DISPLAY_ON                              0xAF         
+#define DISPLAY_CMD_PAGE_ADDR                               0xB0        
+#define DISPLAY_CMD_SCAN_DIRECTION_COM0_START               0xC0       
+#define DISPLAY_CMD_SCAN_DIRECTION_COMN_1_START             0xC8        
+#define DISPLAY_CMD_DISPLAY_OFFSET                          0xD3        
+#define DISPLAY_CMD_DISPLAY_CLOCK_DIVIDE                    0xD5        
+#define DISPLAY_CMD_SET_ZOOM_IN                             0xD6        
+#define DISPLAY_CMD_PRE_CHARGE_PERIOD                       0xD9         
+#define DISPLAY_CMD_COM_PINS_CONF                           0xDA        
+#define DISPLAY_CMD_COMH_DESLECT_LEVEL                      0xDB       
+#define DISPLAY_CMD_NOP                                     0xE3        
+#define DISPLAY_CMD_DFLT_CLK_OSCI_FREQ                      0x80        
+#define DISPLAY_CMD_DFLT_COM_LINES                          0x3F
+#define DISPLAY_CMD_EN_CHARGE                               0x14
+#define DISPLAY_CMD_ALT_PIN_CONFIG                          0x12
+#define DISPLAY_CMD_PHASE_1_PHASE_2                         0xF1
 
 const unsigned char i2c_font_bitmap[][FONT_SIZE] = {
     {0x00, 0x00, 0x00, 0x00, 0x00},   // space
