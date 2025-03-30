@@ -79,12 +79,13 @@ static void i2c_driver_clear_display(void) {
 }
 
 /**
- * i2c_driver_center_cursor - Function used to center the cursor.
- * @void: 
+ * i2c_driver_set_cursor - Function used to set the cursor.
+ * @line: Cursor will be set starting from this column address.
+ * @cursor: Cursor will be set starting from this page address.
  *  
  * Return: None.
  */
-static void i2c_driver_center_cursor(u8 line, u8 cursor) {
+static void i2c_driver_set_cursor(u8 line, u8 cursor) {
     send_command_to_slave_device(0x21);              // cmd for the column start and end address
     send_command_to_slave_device(cursor);         // column start addr
     send_command_to_slave_device(SEGMENTS-1); // column end addr
@@ -94,47 +95,49 @@ static void i2c_driver_center_cursor(u8 line, u8 cursor) {
     send_command_to_slave_device(PAGES-1);
 }
 
+/**
+ * i2c_driver_print_char - Function used to print a single char on display.
+ * @character: Single char which will be printed on screen by matching it's ASCII value to the font bitmap. 
+ *  
+ * Return: None.
+ */
 static void i2c_driver_print_char(unsigned char character) {
 
-    character -= 0x20;
     u8 data = 0;
-    u8 line = 0;
+    
+    /* Adjust ASCII value of character to map it to correct index in font bitmap */
+    character -= 0x20;
 
-    if(character == 0x0A) {
-        pr_info("new line detected\n");
-        line = line & SEGMENTS;
-        line ++;
-        i2c_driver_center_cursor(line, 0x00);
-    } else {
-        for(u8 i = 0; i < FONT_SIZE; i++) {
-            data = i2c_font_bitmap[character][i];
-            send_data_to_slave_device(data);
-        }
+    for(u8 i = 0; i < FONT_SIZE; i++) {
+        data = i2c_font_bitmap[character][i];
+        send_data_to_slave_device(data);
     }    
 }
 
-
+/**
+ * i2c_driver_print_string - Function used to print a complete string on display.
+ * @string: Pointer to a string which will be sent to slave device. 
+ *  
+ * Return: None.
+ */
 static void i2c_driver_print_string(const char *string)
 {
     u8 line = 0;
     while(*string) {
         if (*string == '\n') {
-            // Handle newline character: Maybe flush or change to a different line on the display.
-            //i2c_driver_print_char('\n'); 
-            pr_info("in print string new line");
             line ++;
-           i2c_driver_center_cursor(line, 0x00);
             string++;
+            i2c_driver_set_cursor(line, 0x00);
         } else
         {
             i2c_driver_print_char(*string++);
         }
-        
     }
 }
+
 /**
- * send_to_slave_device - Function used to center the cursor.
- * @void: 
+ * i2c_driver_display_init - Function used to initialize the display.
+ * @void:
  *  
  * Return: None.
  */
@@ -174,7 +177,7 @@ static void i2c_driver_display_init(void) {
 static int i2c_driver_probe(struct i2c_client *client){ 
 
     i2c_driver_display_init();
-    i2c_driver_center_cursor(0x00, 0x00);
+    i2c_driver_set_cursor(0x00, 0x00);
     
     pr_info("i2c_driver: driver probed!\n");
     return 0;
@@ -230,20 +233,20 @@ static long i2c_driver_ioctl(struct file *file, unsigned int cmd, unsigned long 
                     break;
 
                 case IOCTL_CMD_CLEAR:
-                    i2c_driver_center_cursor(0x00, 0x00);
+                    i2c_driver_set_cursor(0x00, 0x00);
                     i2c_driver_clear_display();
                     break;
                         
                 default:
-                        pr_info("Default\n");
-                        break;
+                    pr_err("i2c_driver: Default state, should not enter here!\n");
+                    break;
         }
         return 0;
 }
 
 struct file_operations my_fops =
 {
-	.owner = THIS_MODULE,
+    .owner = THIS_MODULE,
     .open = i2c_driver_open,
     .unlocked_ioctl = i2c_driver_ioctl,
     .release = i2c_driver_release
@@ -252,6 +255,7 @@ struct file_operations my_fops =
 
 static int __init i2c_driver_init(void) {
     struct i2c_adapter *adapter;
+    int ret = 0;
 
     adapter = i2c_get_adapter(I2C_ADAPTER_ID);
 
@@ -269,46 +273,35 @@ static int __init i2c_driver_init(void) {
     i2c_add_driver(&i2c_device_driver);
     i2c_put_adapter(adapter);
 
-    int ret = 0;
    ret = alloc_chrdev_region(&my_dev_id, 0, 1, "i2c_device");
-   if (ret){
-      printk(KERN_ERR "failed to register char device\n");
+   if (ret) {
+      pr_err("i2c_driver: failed to register char device\n");
       return ret;
    }
-   printk(KERN_INFO "char device region allocated\n");
+   pr_info("i2c_driver:char device region allocated\n");
 
    my_class = class_create("i2c_device_class");
-   if (my_class == NULL){
-      printk(KERN_ERR "failed to create class\n");
-      goto fail_0;
+   if (my_class == NULL) {
+      pr_err("i2c_driver: failed to create class\n");
+      unregister_chrdev_region(my_dev_id, 1);
    }
-   printk(KERN_INFO "class created\n");
+   pr_info("i2c_driver: class created\n");
    
    my_device = device_create(my_class, NULL, my_dev_id, NULL, "i2c_device");
-   if (my_device == NULL){
-      printk(KERN_ERR "failed to create device\n");
-      goto fail_1;
+   if (my_device == NULL) {
+        pr_err("i2c_driver: failed to create device\n");
+        class_destroy(my_class);
    }
-   printk(KERN_INFO "device created\n");
+   pr_info("i2c_driver: device created\n");
 
-	my_cdev = cdev_alloc();	
-	my_cdev->ops = &my_fops;
-	my_cdev->owner = THIS_MODULE;
-	ret = cdev_add(my_cdev, my_dev_id, 1);
-	if (ret)
-	{
-      printk(KERN_ERR "failed to add cdev\n");
-		goto fail_2;
-	}
-
-    return 0;
-  
-	fail_2:
-		device_destroy(my_class, my_dev_id);
-   fail_1:
-      class_destroy(my_class);
-   fail_0:
-      unregister_chrdev_region(my_dev_id, 1);
+    my_cdev = cdev_alloc();	
+    my_cdev->ops = &my_fops;
+    my_cdev->owner = THIS_MODULE;
+    ret = cdev_add(my_cdev, my_dev_id, 1);
+    if(ret) {
+        pr_err("i2c_driver: failed to add cdev\n");
+        device_destroy(my_class, my_dev_id);
+    }
 
     pr_info("i2c_driver: init complete!\n");
 
