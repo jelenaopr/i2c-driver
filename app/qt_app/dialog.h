@@ -23,7 +23,8 @@
 #include <unistd.h>     // close()
 #include <sys/ioctl.h>  // ioctl()
 #include <cstring>      // strcpy()
-
+#include "fstream"
+#include <vector>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Dialog; }
@@ -36,9 +37,22 @@ class Dialog : public QDialog
 public:
     Dialog(QWidget *parent = nullptr);
     ~Dialog();
+    int getCpuTemperature(void);
+    float getCPULoad(void);
+    void getMemoryUsage(long &totalMem, long &freeMem);
 
 private:
     Ui::Dialog *ui;
+    std::vector<std::function<void()>> functions;
+    void callFunctions(const std::vector<int> &indices);
+    void addFunction(std::function<void()> func);
     void submitFunction(void);
+    void clearDisplayFunction(void);
+
+    void printMemoryUsage(void);
+    void printCpuLoad(void);
+    void printCpuTemperature(void);
+    void printCustomMessage(void);
+    void printToScreen(const char *text);;;
 };
 #endif // DIALOG_H
