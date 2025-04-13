@@ -23,6 +23,8 @@ Dialog::Dialog(QWidget *parent)
     addFunction(std::bind(&Dialog::printCpuTemperature, this));
     addFunction(std::bind(&Dialog::printCpuLoad, this));
     addFunction(std::bind(&Dialog::printMemoryUsage, this));
+    addFunction(std::bind(&Dialog::printCustomMessage, this));
+
 }
 
 void Dialog::addFunction(std::function<void()> func) {
@@ -35,7 +37,6 @@ void Dialog::callFunctions(const std::vector<int> &indices){
             std::cout<<"call func with index: "<<index<<std::endl;
             functions[index]();
             sleep(5);
-
         }
     }
 }
@@ -102,7 +103,7 @@ void Dialog::printCpuTemperature(void) {
 }
 
 void Dialog::printCustomMessage(void) {
-
+    printToScreen(customMessage);
 }
 
 
@@ -133,14 +134,19 @@ void Dialog::printToScreen(const char *text) {
 //Hello! \n
 void Dialog::submitFunction(void)
 {
-    QString name;
-    const char* cstr;
-    int fd;
+    QString message;
     bool isChecked;
     std::vector<int> indices;
     
-    name = ui->lineEdit->text();
     isChecked = ui->checkBox->isChecked();
+    if(isChecked)
+    {
+        message = ui->lineEdit->text();
+        utf8Bytes = name.toUtf8();
+        customMessage = utf8Bytes.constData();
+
+        indices.push_back(3);
+    }
 
     isChecked = ui->checkBox_2->isChecked();
     if(isChecked)
@@ -154,23 +160,11 @@ void Dialog::submitFunction(void)
     if(isChecked)
         indices.push_back(0);
 
-
-    QByteArray utf8Bytes = name.toUtf8();
-    cstr = utf8Bytes.constData();
-
-     size_t length = strlen(cstr);
-    if (cstr[length] == '\0') {
-        std::cout<<"it is null"<<std::endl;
-    }
-
     callFunctions(indices);
-
 }
 
 Dialog::~Dialog()
 {
-    
-    delete ui;
-    
+    delete ui;   
 }
 

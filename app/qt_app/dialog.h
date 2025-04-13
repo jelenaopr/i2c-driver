@@ -44,6 +44,8 @@ public:
 private:
     Ui::Dialog *ui;
     std::vector<std::function<void()>> functions;
+    const char *customMessage;
+    QByteArray utf8Bytes;
     void callFunctions(const std::vector<int> &indices);
     void addFunction(std::function<void()> func);
     void submitFunction(void);
