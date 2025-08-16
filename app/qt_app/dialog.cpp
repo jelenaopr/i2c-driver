@@ -24,7 +24,6 @@ Dialog::Dialog(QWidget *parent)
     addFunction(std::bind(&Dialog::printCpuLoad, this));
     addFunction(std::bind(&Dialog::printMemoryUsage, this));
     addFunction(std::bind(&Dialog::printCustomMessage, this));
-
 }
 
 void Dialog::addFunction(std::function<void()> func) {
@@ -34,15 +33,33 @@ void Dialog::addFunction(std::function<void()> func) {
 void Dialog::callFunctions(const std::vector<int> &indices){
     for(int index: indices) {
         if(index < functions.size()) {
-            std::cout<<"call func with index: "<<index<<std::endl;
             functions[index]();
-            sleep(5);
+            std::this_thread::sleep_for(std::chrono::seconds(5));
         }
     }
 }
 
-void Dialog::clearDisplayFunction(void) { 
-    qDebug() << "Dialog: clear display: " << "\n";    
+void Dialog::clearDisplayFunction(void) {
+    int fd;
+    running.store(false);
+
+    if(worker.joinable()) {
+        worker.join();
+    }
+
+    qDebug() << "Dialog: clearing display " << "\n";
+
+    fd = ::open("/dev/i2c_device", O_RDWR);
+    if(fd < 0) {
+        printf("Cannot open device file...\n");
+    }
+
+    if (ioctl(fd, IOCTL_CMD_CLEAR, 0) == -1) {
+        perror("ioctl failed");
+    }
+
+    indices.clear();
+    ::close(fd);
 }
 
 void Dialog::printMemoryUsage(void) {
@@ -88,7 +105,6 @@ void Dialog::printCpuTemperature(void) {
     char *message;
     std::fstream tempFile("/sys/class/thermal/thermal_zone0/temp");
     float temperature = 0.0;
-    int roundedTemp = 0;
     if(tempFile.is_open()) {
         std::string line;
         std::getline(tempFile,line);
@@ -96,9 +112,7 @@ void Dialog::printCpuTemperature(void) {
          qDebug() << "Dialog: CPU h temperature is: " << temperature << "\n";
     }
     tempFile.close();
-    
     sprintf(message, "CPU temperature: %.2fC", temperature);
-
     printToScreen(message);
 }
 
@@ -108,63 +122,60 @@ void Dialog::printCustomMessage(void) {
 
 
 void Dialog::printToScreen(const char *text) {
-
     int fd;
     
-    qDebug() << "Dialog: Entered Location: " << text << "\n";
-    std::cout<<text<<std::endl;
-    
+    qDebug() << "Dialog: printToScreen: " << text << "\n";
+
     fd = ::open("/dev/i2c_device", O_RDWR);
     if(fd < 0) {
         printf("Cannot open device file...\n");
     }
-
     if (ioctl(fd, IOCTL_CMD_CLEAR, 0) == -1) {
         perror("ioctl failed");
-        ::close(fd);    } 
-
+    }
     if (ioctl(fd, IOCTL_CMD_WRITE, text) == -1) {
         perror("ioctl failed");
-        ::close(fd);
-    }  
-
+    }
     ::close(fd);
 }
 
-//Hello! \n
+void Dialog::runTask()
+{
+    while(running.load())
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::cout<<"here"<<std::endl;
+        callFunctions(indices);
+        std::cout<<"here 2"<<std::endl;
+    }
+}
+
 void Dialog::submitFunction(void)
 {
     QString message;
-    bool isChecked;
-    std::vector<int> indices;
+    char brightnessMessage[24];
+
+    int brightness = ui->horizontalSlider->value();
+    int scaled = (brightness * 255 + 99)/100;
+    sprintf(brightnessMessage, "brightness=%d", scaled);
+    printToScreen(brightnessMessage);
     
-    isChecked = ui->checkBox->isChecked();
-    if(isChecked)
+    if(ui->checkBox->isChecked())
     {
         message = ui->lineEdit->text();
-        utf8Bytes = name.toUtf8();
+        utf8Bytes = message.toUtf8();
         customMessage = utf8Bytes.constData();
-
         indices.push_back(3);
     }
+    if(ui->checkBox_2->isChecked()) indices.push_back(2);
+    if(ui->checkBox_3->isChecked()) indices.push_back(1);
+    if(ui->checkBox_4->isChecked()) indices.push_back(0);
 
-    isChecked = ui->checkBox_2->isChecked();
-    if(isChecked)
-        indices.push_back(2);
-
-    isChecked = ui->checkBox_3->isChecked();
-    if(isChecked)
-        indices.push_back(1);
-
-    isChecked = ui->checkBox_4->isChecked();
-    if(isChecked)
-        indices.push_back(0);
-
-    callFunctions(indices);
+    worker = std::thread(&Dialog::runTask, this);
+    running.store(true);
 }
 
 Dialog::~Dialog()
 {
     delete ui;   
 }
-

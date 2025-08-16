@@ -18,6 +18,8 @@
 #include <jsoncpp/json/json.h>
 #include <cmath>
 
+#include <thread>
+#include <atomic>
 
 #include <fcntl.h>      // open()
 #include <unistd.h>     // close()
@@ -37,15 +39,18 @@ class Dialog : public QDialog
 public:
     Dialog(QWidget *parent = nullptr);
     ~Dialog();
-    int getCpuTemperature(void);
-    float getCPULoad(void);
-    void getMemoryUsage(long &totalMem, long &freeMem);
 
 private:
     Ui::Dialog *ui;
     std::vector<std::function<void()>> functions;
-    const char *customMessage;
+    std::vector<int> indices;
     QByteArray utf8Bytes;
+    std::thread worker;
+    const char *customMessage;
+    std::atomic<bool> running {false};
+
+    void runTask();
+
     void callFunctions(const std::vector<int> &indices);
     void addFunction(std::function<void()> func);
     void submitFunction(void);
@@ -54,7 +59,7 @@ private:
     void printMemoryUsage(void);
     void printCpuLoad(void);
     void printCpuTemperature(void);
+    void printToScreen(const char *text);
     void printCustomMessage(void);
-    void printToScreen(const char *text);;;
 };
 #endif // DIALOG_H
