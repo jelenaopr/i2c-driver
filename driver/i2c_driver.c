@@ -135,6 +135,12 @@ static void i2c_driver_print_string(const char *string)
     }
 }
 
+static void i2c_driver_set_brightness(uint8_t percentage) 
+{
+    send_command_to_slave_device(0x81);
+    send_command_to_slave_device(percentage);
+}
+
 /**
  * i2c_driver_display_init - Function used to initialize the display.
  * @void:
@@ -212,34 +218,55 @@ static int i2c_driver_release(struct inode *inode, struct file *file)
 static long i2c_driver_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
     char buffer[25];
-         switch(cmd) {
-                case IOCTL_CMD_WRITE:
-                    if(copy_from_user(buffer ,(int32_t*) arg, sizeof(buffer)))
+        switch(cmd)
+        {
+            case IOCTL_CMD_WRITE:
+                if(copy_from_user(buffer ,(int32_t*) arg, sizeof(buffer)))
+                {
+                    pr_err("Data Write : Err!\n");
+                }
+                    pr_info("Buffer Contents: %s\n", buffer);
+
+                for (int i = 0; buffer[i] != '\0'; i++) {
+                    pr_info("Character at %d: %c (ASCII: %d)\n", i, buffer[i], buffer[i]);
+                
+                    if (buffer[i] == '\n') {
+                        pr_info("Newline character detected at position %d\n", i);
+                }
+                }
+                if (strncmp(buffer, "brightness=", 11) == 0) {
+                    int value;
+                    uint8_t perc = 0;
+                    int ret = 0;
+                    ret = kstrtoint(buffer + 11, 10, &value);  // parse the number after '='
+    
+                    if (ret < 0 || value < 0 || value > 256) {
+                        pr_err("Invalid brightness value\n");
+                        return -EINVAL;
+                    }
+                    else
                     {
-                        pr_err("Data Write : Err!\n");
+                        pr_err("i2c_driver: set brighness as %d\n", value);
+                        perc = (uint8_t)value;
+                        i2c_driver_set_brightness(value);
                     }
-                        pr_info("Buffer Contents: %s\n", buffer);
+                }
+                else
+                {
+                    i2c_driver_print_string(buffer);
+                }
+                break;
 
-                        for (int i = 0; buffer[i] != '\0'; i++) {
-                        pr_info("Character at %d: %c (ASCII: %d)\n", i, buffer[i], buffer[i]);
-
-                        if (buffer[i] == '\n') {
-                            pr_info("Newline character detected at position %d\n", i);
-                        }
-                    }
-                        i2c_driver_print_string(buffer);
-                    break;
-
-                case IOCTL_CMD_CLEAR:
-                    i2c_driver_set_cursor(0x00, 0x00);
-                    i2c_driver_clear_display();
-                    break;
-                        
-                default:
-                    pr_err("i2c_driver: Default state, should not enter here!\n");
-                    break;
-        }
-        return 0;
+            case IOCTL_CMD_CLEAR:
+                i2c_driver_set_cursor(0x00, 0x00);
+                i2c_driver_clear_display();
+                break;
+                    
+            default:
+                pr_err("i2c_driver: Default state, should not enter here!\n");
+                break;
+    }
+    return 0;
 }
 
 struct file_operations my_fops =

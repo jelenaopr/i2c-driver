@@ -7,6 +7,7 @@
 
 #define IOCTL_CMD_WRITE 0x00
 #define IOCTL_CMD_CLEAR 0x01
+#define IOCTL_SET_BRIGH 0x02
 
 #define DISPLAY_CMD_LOWER_COLUMN_START_ADDRESS              0x00       
 #define DISPLAY_CMD_HIGHER_COLUMN_START_ADDRESS             0x10        
