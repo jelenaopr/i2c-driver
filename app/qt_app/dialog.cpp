@@ -31,15 +31,12 @@ void Dialog::addFunction(std::function<void()> func) {
 }
 
 void Dialog::callFunctions(const std::vector<int> &indices){
-    std::cout<<"call fundtions called"<<std::endl;
     for(int index: indices) {
         if(index < functions.size()) {
-            std::cout<<"call fundtion at  index"<<index<<std::endl;
             functions[index]();
             std::this_thread::sleep_for(std::chrono::seconds(5));
         }
     }
-    std::cout<<"done"<<std::endl;
 }
 
 void Dialog::clearDisplayFunction(void) {
@@ -84,7 +81,6 @@ void Dialog::printMemoryUsage(void) {
         }
     }
     sprintf(message, "Free memory: %ld", freeMemory);
-    std::cout<<"print memory usage"<<std::endl;
     printToScreen(message);
 }
 
