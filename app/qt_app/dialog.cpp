@@ -31,12 +31,15 @@ void Dialog::addFunction(std::function<void()> func) {
 }
 
 void Dialog::callFunctions(const std::vector<int> &indices){
+    std::cout<<"call fundtions called"<<std::endl;
     for(int index: indices) {
         if(index < functions.size()) {
+            std::cout<<"call fundtion at  index"<<index<<std::endl;
             functions[index]();
             std::this_thread::sleep_for(std::chrono::seconds(5));
         }
     }
+    std::cout<<"done"<<std::endl;
 }
 
 void Dialog::clearDisplayFunction(void) {
@@ -56,6 +59,8 @@ void Dialog::clearDisplayFunction(void) {
 
     if (ioctl(fd, IOCTL_CMD_CLEAR, 0) == -1) {
         perror("ioctl failed");
+        messageBox.setText("IOCTL failed!");
+        messageBox.exec();
     }
 
     indices.clear();
@@ -128,13 +133,19 @@ void Dialog::printToScreen(const char *text) {
 
     fd = ::open("/dev/i2c_device", O_RDWR);
     if(fd < 0) {
-        printf("Cannot open device file...\n");
+        messageBox.setText("Cannot open device file, driver not loaded!");
+        messageBox.exec();
+        return;
     }
     if (ioctl(fd, IOCTL_CMD_CLEAR, 0) == -1) {
         perror("ioctl failed");
+        messageBox.setText("IOCTL failed!");
+        messageBox.exec();
     }
     if (ioctl(fd, IOCTL_CMD_WRITE, text) == -1) {
         perror("ioctl failed");
+        messageBox.setText("IOCTL failed!");
+        messageBox.exec();
     }
     ::close(fd);
 }
@@ -163,9 +174,18 @@ void Dialog::submitFunction(void)
     if(ui->checkBox->isChecked())
     {
         message = ui->lineEdit->text();
-        utf8Bytes = message.toUtf8();
-        customMessage = utf8Bytes.constData();
-        indices.push_back(3);
+        if(!(message.isEmpty()))
+        {
+            //message = ui->lineEdit->text();
+            utf8Bytes = message.toUtf8();
+            customMessage = utf8Bytes.constData();
+            indices.push_back(3);
+        }
+        else
+        {
+            messageBox.setText("Custom message box cannot be empty, skipping!");
+            messageBox.exec();
+        }
     }
     if(ui->checkBox_2->isChecked()) indices.push_back(2);
     if(ui->checkBox_3->isChecked()) indices.push_back(1);

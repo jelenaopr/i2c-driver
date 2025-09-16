@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QMessageBox>
 
 #include "stdio.h"
 #include "stdlib.h"
@@ -48,6 +49,7 @@ private:
     std::thread worker;
     const char *customMessage;
     std::atomic<bool> running {false};
+    QMessageBox messageBox;
 
     void runTask();
 
