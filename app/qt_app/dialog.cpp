@@ -94,10 +94,10 @@ void Dialog::printCpuLoad(void) {
     std::string message;
     loadavg >> load;
 
-    if(load < 1) {
+    if(load < 4) {
         message = "CPU load: underloaded";
     }
-    else if(load == 1) {
+    else if(load == 4) {
        message = "CPU load: balanced";
     } else {
         message = "CPU load: overloaded";
@@ -155,9 +155,7 @@ void Dialog::runTask()
     while(running.load())
     {
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        std::cout<<"here"<<std::endl;
         callFunctions(indices);
-        std::cout<<"here 2"<<std::endl;
     }
 }
 
@@ -167,16 +165,21 @@ void Dialog::submitFunction(void)
     char brightnessMessage[24];
 
     int brightness = ui->horizontalSlider->value();
-    int scaled = (brightness * 255 + 99)/100;
-    sprintf(brightnessMessage, "brightness=%d", scaled);
-    printToScreen(brightnessMessage);
-    
+
+    if(brightness != 0) {
+        int scaled = (brightness * 255 + 99)/100;
+        sprintf(brightnessMessage, "brightness=%d", scaled);
+        printToScreen(brightnessMessage);
+    } else {
+        messageBox.setText("Brightness cannot be set to zero, skipping!");
+        messageBox.exec();
+    }
+
     if(ui->checkBox->isChecked())
     {
         message = ui->lineEdit->text();
         if(!(message.isEmpty()))
         {
-            //message = ui->lineEdit->text();
             utf8Bytes = message.toUtf8();
             customMessage = utf8Bytes.constData();
             indices.push_back(3);
